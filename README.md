@@ -1,0 +1,2 @@
+# weatherkit
+Tiny weather client.
