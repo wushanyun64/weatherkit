@@ -1,0 +1,11 @@
+# Documentation toolchain (document-it skill). Pinned for reproducible builds; bump deliberately.
+mkdocs==1.6.1
+mkdocs-material==9.8.1
+mkdocstrings[python]==1.0.8
+mkdocstrings-python==2.0.10
+mkdocs-gen-files==0.6.1
+mkdocs-literate-nav==0.6.3
+mkdocs-section-index==0.3.12
+griffe==2.4.1          # API drift check (tools/docs/check_drift.py)
+mike==2.2.0            # only needed for versioned docs
+mktestdocs==0.2.5      # only needed for tests/test_docs.py

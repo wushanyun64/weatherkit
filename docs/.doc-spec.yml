@@ -1,0 +1,28 @@
+# Documentation contract written by the document-it skill after interviewing the user.
+# Read by re-runs of the skill and by .github/workflows/docs-ai-update.yml.
+project: TODO
+audiences:
+  - name: TODO e.g. library users
+    level: TODO e.g. intermediate Python developers
+    goals: [TODO]
+scope:
+  include: [TODO e.g. src/pkg]
+  exclude: []
+quadrants: [tutorials, how-to, reference, explanation]
+tone: friendly, second person, concise
+publishing:
+  github_pages: true
+  versioned: false
+  custom_domain: null
+auto_update:
+  ci_regenerate: true
+  drift_check: true
+  ai_pr: false
+conventions:
+  runnable_python_fence: python
+  illustrative_fence: py
+  terminology: {}
+generated_paths:   # never hand-edit; produced at build time
+  - docs/reference/api/
+  - docs/reference/diagrams.md
+decisions: []

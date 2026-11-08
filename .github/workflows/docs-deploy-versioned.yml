@@ -1,0 +1,48 @@
+# Versioned docs with mike: default branch -> "dev", tag vX.Y.Z -> "X.Y" + alias "latest".
+# One-time setup: Settings -> Pages -> Source: "Deploy from a branch" -> gh-pages / (root).
+# mkdocs.yml must contain:  extra: { version: { provider: mike } }
+name: docs-deploy
+
+on:
+  push:
+    branches: [main]  # TODO: default branch
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # mike needs the gh-pages branch
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
+      - run: pip install -r requirements-docs.txt
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Strict build check
+        run: mkdocs build --strict
+      - name: Deploy dev version
+        if: github.ref_type == 'branch'
+        run: mike deploy --push dev
+      - name: Deploy release version
+        if: github.ref_type == 'tag'
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          MINOR="${VERSION%.*}"
+          mike deploy --push --update-aliases "$MINOR" latest
+          mike set-default --push latest
