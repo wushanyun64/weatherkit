@@ -26,10 +26,10 @@ jobs:
     if: ${{ !contains(github.event.head_commit.message, '[skip docs]') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
@@ -42,9 +42,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_args: >-
             --max-turns 40
-            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(gh pr create:*),Bash(gh pr list:*),Bash(mkdocs build:*),Bash(python tools/docs/*)"
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(gh pr create:*),Bash(gh pr list:*),Bash(zensical build:*),Bash(python tools/docs/*)"
           prompt: |
-            You maintain this repository's documentation (MkDocs Material, Diátaxis structure).
+            You maintain this repository's documentation (Zensical, Diátaxis structure).
 
             1. Read docs/.doc-spec.yml — it defines audience, tone, scope, terminology, and which
                paths are generated. Follow it exactly.
@@ -58,7 +58,7 @@ jobs:
                update themselves — never create or edit them.
             4. If nothing needs changing, stop without creating a branch or PR.
             5. Otherwise edit the minimum needed, keep each page to one Diátaxis type, keep
-               examples runnable, then run `mkdocs build --strict` and fix any warnings.
+               examples runnable, then run `zensical build --clean --strict` and fix any warnings.
             6. Create branch docs/auto-update-${{ github.sha }}, commit with message
                "docs: update for ${{ github.sha }} [skip docs]", push, and open a PR with
                `gh pr create` against ${{ github.ref_name }}. In the PR body list each changed

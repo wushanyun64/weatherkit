@@ -1,0 +1,39 @@
+[project]
+site_name = "weatherkit"
+site_description = "Tiny weather client"
+site_url = "https://acme.github.io/weatherkit/"
+repo_url = "https://github.com/acme/weatherkit"
+repo_name = "acme/weatherkit"
+edit_uri = "edit/main/docs/"
+nav = [
+  { "Home" = "index.md" },
+  { "Tutorials" = ["tutorials/index.md", { "Getting started" = "tutorials/getting-started.md" }] },
+  { "How-to guides" = ["how-to/index.md"] },
+  { "Reference" = ["reference/index.md", { "CLI" = "reference/cli.md" }, { "Diagrams" = "reference/diagrams.md" }] },
+  { "Explanation" = ["explanation/index.md", { "Architecture" = "explanation/architecture.md" }] },
+]
+
+[project.theme]
+features = ["navigation.tabs", "navigation.sections", "navigation.indexes", "content.code.copy"]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+show_root_heading = true
+
+[project.plugins.api-autonav]
+modules = ["src/weatherkit"]
+api_root_uri = "reference/api"
+nav_section_title = "API"
+
+[project.plugins.markdown-exec]
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+pymdownx.snippets = { base_path = [".", "docs"], check_paths = true }
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]

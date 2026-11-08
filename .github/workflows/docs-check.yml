@@ -12,10 +12,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0  # drift check diffs against the base branch
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -24,7 +24,7 @@ jobs:
       - run: pip install -r requirements-docs.txt
 
       - name: Strict build (broken links, missing snippets, stale API references)
-        run: mkdocs build --strict
+        run: zensical build --clean --strict
 
       - name: Test code examples in docs
         if: hashFiles('tests/test_docs.py') != ''

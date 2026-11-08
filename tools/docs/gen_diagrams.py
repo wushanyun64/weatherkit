@@ -6,8 +6,9 @@ no project code is imported or executed. Renders SVG with Graphviz `dot` when av
 otherwise emits Mermaid so docs builds never break.
 
 Used two ways:
-  * Library: gen_reference_pages.py calls build_page() inside `mkdocs build` (virtual files).
-  * CLI:     python3 gen_diagrams.py --src src --out diagrams/ --format svg|dot|mermaid
+  * Docs build: docs/reference/diagrams.md calls render_from_env() in a markdown-exec block,
+    so `zensical build` regenerates the diagrams every time (nothing is committed).
+  * CLI:        python3 gen_diagrams.py --src src --out diagrams/ --format svg|dot|mermaid|md
 """
 
 from __future__ import annotations
@@ -208,19 +209,27 @@ def render_svg(dot_source: str) -> bytes | None:
 
 def build_page(src: Path, packages: list[str] | None = None, exclude: set[str] | None = None,
                include_private: bool = False, max_nodes: int = 40,
-               explanation_link: str | None = "../explanation/index.md") -> tuple[str, dict[str, bytes]]:
-    """Return (markdown, {relative_asset_name: bytes}) for a 'Diagrams' reference page."""
+               explanation_link: str | None = "../explanation/index.md",
+               inline_svg: bool = False, heading: bool = True) -> tuple[str, dict[str, bytes]]:
+    """Return (markdown, {relative_asset_name: bytes}) for a 'Diagrams' reference page.
+
+    With ``inline_svg`` the SVG markup is embedded in the Markdown and no assets are returned
+    (used when rendering inside the docs build via markdown-exec). ``heading=False`` omits the
+    title and intro so the caller's page can provide them.
+    """
     mods = discover(src, packages, exclude, include_private)
     assets: dict[str, bytes] = {}
-    md = [
-        "# Diagrams",
-        "",
-        "These diagrams are **generated from the source code on every docs build**, so they always",
-        "reflect the current structure.",
-    ]
-    if explanation_link:
-        md.append(f"For the intended design and the reasoning behind it, see [Explanation]({explanation_link}).")
-    md.append("")
+    md = []
+    if heading:
+        md += [
+            "# Diagrams",
+            "",
+            "These diagrams are **generated from the source code on every docs build**, so they always",
+            "reflect the current structure.",
+        ]
+        if explanation_link:
+            md.append(f"For the intended design and the reasoning behind it, see [Explanation]({explanation_link}).")
+        md.append("")
     graphs = [
         ("Module dependencies", "imports", "An arrow from A to B means module A imports module B.",
          *fit(import_edges(mods), max_nodes), "LR"),
@@ -234,13 +243,33 @@ def build_page(src: Path, packages: list[str] | None = None, exclude: set[str] |
             continue
         slug = title.lower().replace(" ", "-")
         svg = render_svg(to_dot(edges, verb, "LR" if direction == "LR" else "BT"))
-        if svg:
+        if svg and inline_svg:
+            markup = svg.decode("utf-8")
+            markup = markup[markup.find("<svg"):].replace("\n", " ")  # drop XML prologue; one line keeps Markdown from re-parsing it
+            md += [f'<div class="generated-diagram" role="img" aria-label="{title}: {caption}">{markup}</div>', ""]
+        elif svg:
             assets[f"{slug}.svg"] = svg
             md += [f"![{title}: {caption}]({slug}.svg)", ""]
         else:
             md += ["```mermaid", to_mermaid(edges, verb, direction), "```", ""]
         md += [f"*{caption}*" + (f" ({note}.)" if note else ""), ""]
     return "\n".join(md), assets
+
+
+def render_from_env() -> str:
+    """Markdown body for the docs' Diagrams page, configured by DOCS_* environment variables.
+
+    Called from a markdown-exec block in docs/reference/diagrams.md during `zensical build`.
+    """
+    src = Path(os.environ["DOCS_SRC"]) if os.environ.get("DOCS_SRC") else default_src()
+    packages = [p for p in os.environ.get("DOCS_PACKAGES", "").split(",") if p] or None
+    exclude = set(filter(None, os.environ.get("DOCS_EXCLUDE", "").split(","))) or None
+    return build_page(
+        src, packages, exclude,
+        include_private=os.environ.get("DOCS_INCLUDE_PRIVATE") == "1",
+        max_nodes=int(os.environ.get("DOCS_DIAGRAM_MAX_NODES", 40)),
+        inline_svg=True, heading=False,
+    )[0]
 
 
 def main() -> int:

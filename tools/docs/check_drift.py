@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 CODE_EXT = {".py", ".pyi", ".js", ".ts", ".tsx", ".jsx", ".go", ".rs", ".java", ".kt", ".rb", ".cs"}
-DOC_PREFIXES = ("docs/", "README", "mkdocs.yml", "CHANGELOG")
+DOC_PREFIXES = ("docs/", "README", "zensical.toml", "mkdocs.yml", "CHANGELOG")
 NON_SOURCE_DIRS = ("tests/", "test/", "docs/", "tools/", ".github/", "benchmarks/")
 EXCLUDE_TOPS = {"tests", "test", "docs", "tools", "examples", "scripts", "benchmarks"}
 
@@ -62,7 +62,8 @@ def griffe_breakages(packages: list[str], base: str, search: Path) -> list[str]:
     lines: list[str] = []
     for pkg in packages:
         out = subprocess.run(
-            [sys.executable, "-m", "griffe", "check", pkg, "--against", base, "--search", str(search)],
+            # search path must be relative: griffe resolves it inside a worktree of the base ref
+            [sys.executable, "-m", "griffe", "check", pkg, "--against", base, "--search", search.as_posix(), "--no-color"],
             capture_output=True, text=True,
         )
         text = (out.stdout + out.stderr).strip()
@@ -101,7 +102,7 @@ def main() -> int:
         if Path(f).suffix in CODE_EXT and any(f.startswith(w) for w in watch) and not f.startswith(NON_SOURCE_DIRS)
     ]
     docs_changed = [f for f in files if f.startswith(DOC_PREFIXES)]
-    api_breaks = [] if args.no_api or not pkgs else griffe_breakages(pkgs, args.base, src)
+    api_breaks = [] if args.no_api or not pkgs else griffe_breakages(pkgs, args.base, src.relative_to(root))
 
     report = ["## Docs drift check", "", f"Compared `{args.base}`...`{args.head}`: {len(files)} files changed."]
     drift = False
