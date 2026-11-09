@@ -1,9 +1,9 @@
 [project]
 site_name = "weatherkit"
 site_description = "Tiny weather client"
-site_url = "https://acme.github.io/weatherkit/"
-repo_url = "https://github.com/acme/weatherkit"
-repo_name = "acme/weatherkit"
+site_url = "https://wushanyun64.github.io/weatherkit/"
+repo_url = "https://github.com/wushanyun64/weatherkit"
+repo_name = "wushanyun64/weatherkit"
 edit_uri = "edit/main/docs/"
 nav = [
   { "Home" = "index.md" },

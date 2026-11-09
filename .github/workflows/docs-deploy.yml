@@ -4,7 +4,7 @@ name: docs-deploy
 
 on:
   push:
-    branches: [main]  # TODO: default branch
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -28,8 +28,8 @@ jobs:
           cache-dependency-path: requirements-docs.txt
       - name: Install Graphviz (SVG diagrams; without it the diagrams page falls back to Mermaid)
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
-      - name: Install docs dependencies
-        run: pip install -r requirements-docs.txt
+      - name: Install docs dependencies and the project (the CLI page runs `weatherkit --help`)
+        run: pip install -r requirements-docs.txt -e .
       - uses: actions/configure-pages@v6
       - name: Build site (regenerates API reference and diagrams)
         run: zensical build --clean --strict
