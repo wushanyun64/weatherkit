@@ -32,10 +32,18 @@ jobs:
           pip install -e . pytest
           pytest tests/test_docs.py
 
+      # Internal links are already checked by the strict build above (and point at pages that only
+      # exist after the build), so lychee checks web links only. The site's own URL is excluded
+      # because it 404s until the first deploy.
       - name: Check external links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --accept 200,206,429 --exclude-path site './docs/**/*.md' README.md
+          args: >-
+            --no-progress --accept 200,206,429
+            --scheme https --scheme http
+            --exclude '^https://wushanyun64\.github\.io/weatherkit'
+            --exclude-path site
+            './docs/**/*.md' README.md
           fail: true
 
       - name: Docs drift check
