@@ -1,13 +1,16 @@
 # Documentation contract written by the document-it skill after interviewing the user.
-# Read by re-runs of the skill and by .github/workflows/docs-ai-update.yml.
-project: TODO
+# Read by re-runs of the skill and by .github/workflows/docs-ai-update.yml (if enabled).
+project: weatherkit
 audiences:
-  - name: TODO e.g. library users
-    level: TODO e.g. intermediate Python developers
-    goals: [TODO]
+  - name: Python library users
+    level: intermediate Python developers
+    goals:
+      - get a forecast for a city from Python
+      - plug in their own data source (custom Provider)
+      - make code that uses weatherkit deterministic in tests
 scope:
-  include: [TODO e.g. src/pkg]
-  exclude: []
+  include: [src/weatherkit]
+  exclude: [src/weatherkit/_internal]
 quadrants: [tutorials, how-to, reference, explanation]
 tone: friendly, second person, concise
 publishing:
@@ -17,12 +20,18 @@ publishing:
 auto_update:
   ci_regenerate: true
   drift_check: true
-  ai_pr: false
+  ai_pr: false   # README explains it's left out because it needs an API key secret
 conventions:
   runnable_python_fence: python
   illustrative_fence: py
-  terminology: {}
+  terminology:
+    provider: a data source implementing weatherkit.providers.base.Provider
+    forecast: a weatherkit.Forecast instance (city, temp_c)
 generated_paths:   # never hand-edit; produced at build time
   - docs/reference/api/
   - docs/reference/diagrams.md
-decisions: []
+  - docs/reference/cli.md#usage
+decisions:
+  - "2026-11-09: Client.undocumented() is intentionally left without a docstring to demo the drift check."
+  - "2026-11-09: The internal cache is mentioned in explanation only, as unused; not documented as API."
+  - "2026-11-09: No AI doc-update workflow; CI build/check/deploy only."

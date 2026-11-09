@@ -8,7 +8,7 @@ edit_uri = "edit/main/docs/"
 nav = [
   { "Home" = "index.md" },
   { "Tutorials" = ["tutorials/index.md", { "Getting started" = "tutorials/getting-started.md" }] },
-  { "How-to guides" = ["how-to/index.md"] },
+  { "How-to guides" = ["how-to/index.md", { "Use a custom provider" = "how-to/custom-provider.md" }, { "Test with providers" = "how-to/test-with-providers.md" }] },
   { "Reference" = ["reference/index.md", { "CLI" = "reference/cli.md" }, { "Diagrams" = "reference/diagrams.md" }] },
   { "Explanation" = ["explanation/index.md", { "Architecture" = "explanation/architecture.md" }] },
 ]
